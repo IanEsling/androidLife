@@ -1,0 +1,118 @@
+package life.board;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ */
+public class Cell implements CellListener
+{
+    private final List<CellListener> listeningCells = new ArrayList<CellListener>();
+    private final int row;
+    private final int column;
+    private boolean alive;
+    private Boolean newState;
+    private int numberOfLiveNeighbours;
+
+    public Cell(int row, int column)
+    {
+        this.row = row;
+        this.column = column;
+        this.alive = false;
+        this.numberOfLiveNeighbours = 0;
+    }
+
+    public int getRow()
+    {
+        return row;
+    }
+
+    public int getColumn()
+    {
+        return column;
+    }
+
+    public boolean isAlive()
+    {
+        return alive;
+    }
+
+    public void setAlive(boolean newLiveState)
+    {
+        tellListenersIfStateChanged(newLiveState);
+        alive = newLiveState;
+        newState = null;
+    }
+
+    private void tellListenersIfStateChanged(boolean newLiveState)
+    {
+        if (!alive == newLiveState) tellListeners(newLiveState);
+    }
+
+    private void tellListeners(boolean alive)
+    {
+        for (CellListener cell : listeningCells)
+        {
+            if (alive)
+            {
+                cell.listenedToCellHasComeToLife();
+            } else
+            {
+                cell.listenedToCellHasDied();
+            }
+        }
+    }
+
+    public void listenedToCellHasDied()
+    {
+        --numberOfLiveNeighbours;
+    }
+
+    public void listenedToCellHasComeToLife()
+    {
+        ++numberOfLiveNeighbours;
+    }
+
+    public int getNumberOfLiveNeighbours()
+    {
+        return numberOfLiveNeighbours;
+    }
+
+    public void addCellListener(CellListener cellListener)
+    {
+        listeningCells.add(cellListener);
+    }
+
+    public void newState(boolean newState)
+    {
+        this.newState = newState;
+    }
+
+    void applyNewState()
+    {
+        if (newState != null) setAlive(newState);
+    }
+
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cell cell = (Cell) o;
+
+        return column == cell.column && row == cell.row;
+    }
+
+    public int hashCode()
+    {
+        int result;
+        result = row;
+        result = 31 * result + column;
+        return result;
+    }
+
+    public String toString()
+    {
+        return "Cell row: " + row + ", column: " + column + ", isAlive: " + isAlive() + ", listening to " + listeningCells.size() + " listeningCells";
+    }
+}

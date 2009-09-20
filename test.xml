@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AndroidLife" default="test">
+
+    <property  name="build.dir" value="../build"/>
+    <property name="copy.to.dir" value="${build.dir}/out"/>
+    <property name="compile.dir" value="${build.dir}/classes"/>
+    <property name="report.dir" value="${build.dir}/reports"/>
+
+    <path id="test.classpath">
+        <fileset file="/Applications/IntelliJ IDEA 9.0M1.app/lib/junit-4.6.jar"/>
+        <fileset file="/Users/ian/Development/android-sdk-mac_x86-1.5_r3/platforms/android-1.5/android.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${copy.to.dir}"/>
+        <mkdir dir="${compile.dir}"/>
+        <mkdir dir="${report.dir}"/>
+    </target>
+
+    <target name="copy" depends="clean">
+        <copy todir="${copy.to.dir}">
+            <fileset dir="./src/life/"/>
+            <fileset dir="./test/life/"/>
+        </copy>
+    </target>
+
+    <target name="compile_tests" depends="copy">
+        <javac srcdir="${copy.to.dir}" destdir="${compile.dir}">
+            <classpath refid="test.classpath"/>
+        </javac>
+    </target>
+
+    <target name="test" depends="compile_tests">
+        <junit fork="yes" printsummary="yes" haltonfailure="no">
+            <classpath refid="test.classpath"/>
+            <classpath path="${compile.dir}"/>
+            <batchtest fork="yes" todir="${report.dir}">
+                <fileset dir="${compile.dir}">
+                    <include name="**/Test*.class"/>
+                    <exclude name="**/*$*"/>
+                </fileset>
+            </batchtest>
+            <formatter type="xml"/>
+        </junit>
+
+        <junitreport todir="${report.dir}">
+            <fileset dir="${report.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report todir="${report.dir}"/>
+        </junitreport>
+    </target>
+</project>
